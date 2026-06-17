@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS payment;
+DROP TABLE IF EXISTS order_item;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS users;
+
+DROP TYPE IF EXISTS payment_status;
+DROP TYPE IF EXISTS order_status;
+DROP TYPE IF EXISTS user_role;
