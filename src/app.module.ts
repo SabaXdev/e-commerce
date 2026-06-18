@@ -5,6 +5,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EnvKey } from './common/enums/env-key.enum';
 import { AuthModule } from './modules/auth/auth.module';
+import { Order } from './modules/orders/entities/order.entity';
+import { OrderItem } from './modules/orders/entities/order-item.entity';
+import { OrdersModule } from './modules/orders/orders.module';
 import { Product } from './modules/products/entities/product.entity';
 import { ProductsModule } from './modules/products/products.module';
 import { User } from './modules/users/entities/user.entity';
@@ -23,13 +26,14 @@ import { UsersModule } from './modules/users/users.module';
         username: configService.getOrThrow<string>(EnvKey.DbUser),
         password: configService.getOrThrow<string>(EnvKey.DbPassword),
         database: configService.getOrThrow<string>(EnvKey.DbName),
-        entities: [User, Product],
+        entities: [User, Product, Order, OrderItem],
         synchronize: false,
       }),
     }),
     UsersModule,
     AuthModule,
     ProductsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
