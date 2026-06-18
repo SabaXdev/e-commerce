@@ -5,6 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EnvKey } from './common/enums/env-key.enum';
 import { AuthModule } from './modules/auth/auth.module';
+import { Product } from './modules/products/entities/product.entity';
+import { ProductsModule } from './modules/products/products.module';
 import { User } from './modules/users/entities/user.entity';
 import { UsersModule } from './modules/users/users.module';
 
@@ -21,12 +23,13 @@ import { UsersModule } from './modules/users/users.module';
         username: configService.getOrThrow<string>(EnvKey.DbUser),
         password: configService.getOrThrow<string>(EnvKey.DbPassword),
         database: configService.getOrThrow<string>(EnvKey.DbName),
-        entities: [User],
+        entities: [User, Product],
         synchronize: false,
       }),
     }),
     UsersModule,
     AuthModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
