@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EnvKey } from './common/enums/env-key.enum';
+import { RedisModule } from './common/redis/redis.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { Order } from './modules/orders/entities/order.entity';
 import { OrderItem } from './modules/orders/entities/order-item.entity';
@@ -16,6 +17,7 @@ import { UsersModule } from './modules/users/users.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    RedisModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

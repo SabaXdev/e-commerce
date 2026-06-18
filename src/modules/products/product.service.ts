@@ -5,16 +5,23 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ProductsCacheService } from './cache/products.cache.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { ProductQueryParamsDto } from './dto/product-query-params.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductErrorMessage } from './enums/product-error-message.enum';
+import {
+  PaginatedProducts,
+  ProductPagination,
+} from './products.constants';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productsRepository: Repository<Product>,
+    private readonly productsCacheService: ProductsCacheService,
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
@@ -25,13 +32,30 @@ export class ProductService {
       stockQuantity: createProductDto.stockQuantity,
     });
 
-    return this.productsRepository.save(product);
+    const savedProduct = await this.productsRepository.save(product);
+    await this.productsCacheService.invalidateListCache();
+
+    return savedProduct;
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productsRepository.find({
+  async findAll(query: ProductQueryParamsDto): Promise<PaginatedProducts> {
+    const page = query.page ?? ProductPagination.DefaultPage;
+    const limit = query.limit ?? ProductPagination.DefaultLimit;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.productsRepository.findAndCount({
       order: { createdAt: 'DESC' },
+      skip,
+      take: limit,
     });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || ProductPagination.MinPage,
+    };
   }
 
   async findOne(id: string): Promise<Product> {
@@ -70,12 +94,16 @@ export class ProductService {
       product.stockQuantity = updateProductDto.stockQuantity;
     }
 
-    return this.productsRepository.save(product);
+    const updatedProduct = await this.productsRepository.save(product);
+    await this.productsCacheService.invalidateListCache();
+
+    return updatedProduct;
   }
 
   async remove(id: string): Promise<void> {
     const product = await this.findOne(id);
     await this.productsRepository.remove(product);
+    await this.productsCacheService.invalidateListCache();
   }
 
   private formatPrice(price: number): string {

@@ -9,13 +9,18 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CreateProductDto } from './dto/create-product.dto';
+import { ProductQueryParamsDto } from './dto/product-query-params.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
+import { ProductCacheInterceptor } from './interceptors/product-cache.interceptor';
 import { ProductService } from './product.service';
+import { PaginatedProducts } from './products.constants';
 
 @Controller('products')
 export class ProductController {
@@ -28,8 +33,9 @@ export class ProductController {
   }
 
   @Get()
-  findAll(): Promise<Product[]> {
-    return this.productService.findAll();
+  @UseInterceptors(ProductCacheInterceptor)
+  findAll(@Query() query: ProductQueryParamsDto): Promise<PaginatedProducts> {
+    return this.productService.findAll(query);
   }
 
   @Get(':id')
