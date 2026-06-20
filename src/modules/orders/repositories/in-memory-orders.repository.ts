@@ -67,9 +67,25 @@ export class InMemoryOrdersRepository implements OrdersRepository {
       .filter((order) => order.userId === userId)
       .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
 
-    const total = userOrders.length;
+    return this.paginateOrders(userOrders, page, limit);
+  }
+
+  async findAll(page: number, limit: number): Promise<PaginatedOrders> {
+    const allOrders = [...this.orders.values()].sort(
+      (left, right) => right.createdAt.getTime() - left.createdAt.getTime(),
+    );
+
+    return this.paginateOrders(allOrders, page, limit);
+  }
+
+  private paginateOrders(
+    orders: Order[],
+    page: number,
+    limit: number,
+  ): PaginatedOrders {
+    const total = orders.length;
     const offset = (page - 1) * limit;
-    const paginatedOrders = userOrders.slice(offset, offset + limit);
+    const paginatedOrders = orders.slice(offset, offset + limit);
 
     const data: OrderWithItems[] = paginatedOrders.map((order) => ({
       order,

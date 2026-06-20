@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderStatus } from '../../common/enums';
+import { OrderStatus, UserRole } from '../../common/enums';
 import { AuthenticatedUser } from '../auth/types/auth.types';
 import { ProductService } from '../products/product.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -83,11 +83,10 @@ export class OrdersService {
     const page = query.page ?? OrderPagination.DefaultPage;
     const limit = query.limit ?? OrderPagination.DefaultLimit;
 
-    const result = await this.ordersRepository.findByUserId(
-      user.userId,
-      page,
-      limit,
-    );
+    const result =
+      user.role === UserRole.Admin
+        ? await this.ordersRepository.findAll(page, limit)
+        : await this.ordersRepository.findByUserId(user.userId, page, limit);
 
     return {
       ...result,
@@ -100,7 +99,10 @@ export class OrdersService {
     id: string,
   ): Promise<OrderWithItems> {
     const order = await this.getOrderOrThrow(id);
-    this.assertOrderOwnership(user, order.order.userId);
+
+    if (user.role !== UserRole.Admin) {
+      this.assertOrderOwnership(user, order.order.userId);
+    }
 
     return order;
   }

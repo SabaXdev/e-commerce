@@ -10,4 +10,5 @@ export enum EnvKey {
   RedisPort = 'REDIS_PORT',
   RedisPassword = 'REDIS_PASSWORD',
   RedisDefaultTtlSeconds = 'REDIS_DEFAULT_TTL_SECONDS',
+  FrontendUrl = 'FRONTEND_URL',
 }

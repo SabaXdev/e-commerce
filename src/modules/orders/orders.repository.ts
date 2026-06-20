@@ -35,5 +35,6 @@ export interface OrdersRepository {
     page: number,
     limit: number,
   ): Promise<PaginatedOrders>;
+  findAll(page: number, limit: number): Promise<PaginatedOrders>;
   updateStatus(id: string, status: OrderStatus): Promise<Order | null>;
 }

@@ -11,8 +11,11 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UserRole } from '../../common/enums';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../auth/types/auth.types';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderQueryParamsDto } from './dto/order-query-params.dto';
@@ -53,6 +56,8 @@ export class OrdersController {
     return this.ordersService.findOne(user, id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.Admin)
   @Patch(':id/status')
   updateStatus(
     @Param('id', ParseUUIDPipe) id: string,
